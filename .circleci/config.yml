@@ -1,0 +1,154 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@1.2.1
+
+jobs:
+  tests:
+    docker:
+      - image: cimg/python:3.10.6
+    steps:
+      - run:
+          name: Setup virtual environment and install dependencies
+          command: |
+            pip install poetry
+            poetry install
+            poetry shell
+      - run:
+          name: Run tests
+          command: |
+            pytest
+
+  private-keys-check:
+    executor: docker/docker
+    steps: # pre installed go container and probably git also
+      - run:
+          name: Download and install trufflehog
+          command: |
+            git clone https://github.com/trufflesecurity/trufflehog.git
+            cd trufflehog
+            go install
+      - run:
+          name: Check private keys issues
+          command: |
+            trufflehog git file://. --only-verified --fail
+
+  code-vulnerability-check:
+    executor: docker/docker
+    steps:
+      - run:
+          name: Install bandit package
+          command: |
+            pip install bandit
+      - run:
+          name: Run bandit static code analyse
+          command: |
+            bandit -r ./
+
+  server-vulnerability-check:
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/build:
+          image: docker/docker
+          registry: ${DOCKER_REGISTRY}
+          tag: build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+      - run:
+          name: Start server
+          command: |
+            docker run ${DOCKER_REGISTRY}:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1} -p 80:80
+      - run:
+          name: Install wapiti3 package
+          command: |
+            pip install wapiti3
+      - run:
+          name: Run wapiti dynamic server analyse
+          command: |
+            wapiti -u http://localhost
+
+  build-and-push-image:
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check:
+          registry: ${DOCKER_REGISTRY}
+      - docker/build:
+          image: docker/docker
+          registry: ${DOCKER_REGISTRY}
+          tag: build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+      - docker/push:
+          image: docker/docker
+          registry: ${DOCKER_REGISTRY}
+          tag: build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+
+#  deploy-dev:
+#    docker:
+#      - image: cimg/base:2022.02
+#    steps:
+#      - k8s/install
+#      - k8s/initialize:
+#          cluster: ${K8S_CLUSTER_NAME_DEV}
+#      - run:
+#          name: Rollout new Docker image
+#          command: |
+#            kubectl set image deployment/${K8S_DEPLOYMENT_NAME} ${K8S_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/pricing-api:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+#            kubectl set image deployment/${K8S_HTTP_DEPLOYMENT_NAME} ${K8S_HTTP_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/pricing-api:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+#  deploy-prod:
+#    docker:
+#      - image: cimg/base:2022.02
+#    steps:
+#      - k8s/install
+#      - k8s/initialize:
+#          cluster: ${K8S_CLUSTER_NAME_PROD}
+#      - run:
+#          name: Rollout new Docker image
+#          command: |
+#            kubectl set image deployment/${K8S_DEPLOYMENT_NAME} ${K8S_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/pricing-api:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+#            kubectl set image deployment/${K8S_HTTP_DEPLOYMENT_NAME} ${K8S_HTTP_DEPLOYMENT_NAME}=${DOCKER_REGISTRY}/pricing-api:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+
+# Common aliases
+dev_or_main_branch_only: &dev_or_main_only
+  filters:
+    branches:
+      only:
+        - dev
+        - main
+
+workflows:
+  build-test-vulnerability_check-and-deploy:
+    jobs:
+      - tests:
+          <<: *dev_or_main_only
+      - private-keys-check:
+          requires:
+            - tests
+          <<: *dev_or_main_only
+      - code-vulnerability-check:
+          requires:
+            - private-keys-check
+          <<: *dev_or_main_only
+      - server-vulnerability-check:
+          requires:
+            - code-vulnerability-check
+          <<: *dev_or_main_only
+      - build-and-push-image:
+          requires:
+            - server-vulnerability-check
+          <<: *dev_or_main_only
+#      - deploy-dev:
+#          requires:
+#            - build-and-push-image
+#          filters:
+#            branches:
+#              only:
+#                - dev
+#      - deploy-prod:
+#          requires:
+#            - build-and-push-image
+#          filters:
+#            branches:
+#              only:
+#                - main
+

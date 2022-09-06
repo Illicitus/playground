@@ -9,7 +9,7 @@ WORKDIR /project
 COPY . /project
 
 # Install dependencies
-RUN poetry install
+RUN poetry install --without dev
 
 # Expose and run server
 EXPOSE 80
