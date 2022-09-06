@@ -9,6 +9,7 @@ jobs:
     docker:
       - image: cimg/python:3.10.6
     steps:
+      - checkout
       - run:
           name: Setup virtual environment and install dependencies
           command: |
@@ -23,6 +24,7 @@ jobs:
   private-keys-check:
     executor: docker/docker
     steps: # pre installed go container and probably git also
+      - checkout
       - run:
           name: Download and install trufflehog
           command: |
@@ -37,6 +39,7 @@ jobs:
   code-vulnerability-check:
     executor: docker/docker
     steps:
+      - checkout
       - run:
           name: Install bandit package
           command: |
