@@ -6,7 +6,7 @@ orbs:
 jobs:
   tests:
     docker:
-      - image: cimg/python:3.10.6
+      - image: python:3.10.6
     steps:
       - run:
           name: Setup virtual environment and install dependencies

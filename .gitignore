@@ -9,3 +9,6 @@ scripts/pre_commit
 
 # Python build
 __pycache__
+
+# Pytest
+.pytest_cache
