@@ -22,13 +22,12 @@ jobs:
             poetry install
       - save_cache:
           paths:
-            - $(poetry env info --path)
+            - echo $(poetry env info --path)
           key: deps-{{ .Branch }}-{{ checksum poetry.lock }}
       - run:
           name: Run tests
           command: |
-            poetry shell
-            pytest
+            poetry shell && pytest
 
   private-keys-check:
     executor: docker/docker
