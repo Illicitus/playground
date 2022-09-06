@@ -7,13 +7,16 @@ jobs:
   tests:
     working_directory: ~/project
     docker:
-      - image: cimg/python:3.10.6
+      - image: python:3.10.6
     steps:
       - checkout
       - run:
           name: Setup virtual environment and install dependencies
           command: |
             pip install poetry
+      - run:
+          name: Install dependencies
+          command: |
             poetry install
             poetry shell
       - run:
