@@ -23,6 +23,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            poetry shell
             pytest
 
   private-keys-check:
