@@ -14,12 +14,16 @@ jobs:
           name: Setup virtual environment and install dependencies
           command: |
             pip install poetry
+      - restore_cache:
+          key: deps-{{ .Branch ))-{{ checksum poetry.lock }}
       - run:
           name: Install dependencies
           command: |
             poetry install
-            poetry config --list
-            poetry show
+      - save_cache:
+          paths:
+            - $(poetry env info --path)
+          key: deps-{{ .Branch }}-{{ checksum poetry.lock }}
       - run:
           name: Run tests
           command: |
