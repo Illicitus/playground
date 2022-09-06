@@ -18,7 +18,8 @@ jobs:
           name: Install dependencies
           command: |
             poetry install
-            poetry shell
+            poetry config --list
+            poetry show
       - run:
           name: Run tests
           command: |
