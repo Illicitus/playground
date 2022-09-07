@@ -61,27 +61,24 @@ jobs:
           command: |
             pip install bandit
       - run:
-          name: debug
-          command: |
-            echo "Debug"
-            echo $CIRCLE_WORKING_DIRECTORY
-            pwd
-            du -h
-            ls
-      - run:
           name: Run bandit static code analyse
           command: |
             bandit -c bandit.yml -r .
 
   server-vulnerability-check:
-    executor: docker/docker
+    working_directory: ~/project
+    machine:
+      image: ubuntu-2004:202104-01
     steps:
-      - setup_remote_docker
       - checkout
-      - docker/build:
-          image: docker/docker
-          registry: ${DOCKER_REGISTRY}
-          tag: build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+      - run:
+          name: Build image
+          command: |
+            docker build --tag=build-${CIRCLE_BRANCH}-${CIRCLE_SHA1}
+      - run:
+          name: debug
+          command: |
+            docker images
       - run:
           name: Start server
           command: |
