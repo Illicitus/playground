@@ -15,11 +15,15 @@ jobs:
           command: |
             pip install poetry
       - restore_cache:
-          key: deps-{{ .Branch ))-{{ checksum poetry.lock }}
+          key: deps-{{ .Branch }}-{{ checksum poetry.lock }}
       - run:
           name: Install dependencies
           command: |
             poetry install
+      - run:
+          name: debug
+          command: |
+            echo $(poetry env info --path)
       - save_cache:
           paths:
             - echo $(poetry env info --path)
