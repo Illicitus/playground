@@ -67,6 +67,7 @@ jobs:
             echo $CIRCLE_WORKING_DIRECTORY
             pwd
             du -h
+            ls
       - run:
           name: Run bandit static code analyse
           command: |
