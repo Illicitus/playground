@@ -63,7 +63,7 @@ jobs:
       - run:
           name: Run bandit static code analyse
           command: |
-            bandit -r ./
+            bandit -c bandit.yaml -r .
 
   server-vulnerability-check:
     executor: docker/docker
