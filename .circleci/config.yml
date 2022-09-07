@@ -22,7 +22,7 @@ jobs:
             poetry install
       - save_cache:
           paths:
-            - echo $(poetry env info --path)
+            - $(poetry env info --path)
           key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run:
           name: Run tests
@@ -60,6 +60,12 @@ jobs:
           name: Install bandit package
           command: |
             pip install bandit
+      - run:
+          name: debug
+          command: |
+            echo "Debug"
+            echo $CIRCLE_WORKING_DIRECTORY
+            pwd
       - run:
           name: Run bandit static code analyse
           command: |
