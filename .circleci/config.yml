@@ -66,6 +66,10 @@ jobs:
             echo "Debug"
             echo $CIRCLE_WORKING_DIRECTORY
             pwd
+            cd $CIRCLE_WORKING_DIRECTORY
+            pwd
+            ls
+            ls -a
       - run:
           name: Run bandit static code analyse
           command: |
