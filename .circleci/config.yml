@@ -63,7 +63,7 @@ jobs:
       - run:
           name: Run bandit static code analyse
           command: |
-            bandit -c $CIRCLE_WORKING_DIRECTORY/bandit.yaml -r .
+            bandit -c $CIRCLE_WORKING_DIRECTORY/bandit.yml -r .
 
   server-vulnerability-check:
     executor: docker/docker
