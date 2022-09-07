@@ -30,7 +30,9 @@ jobs:
             poetry run pytest
 
   private-keys-check:
-    executor: golang:alpine3.16
+    working_directory: ~/project
+    docker:
+      - image: golang:alpine3.16
     steps:
       - checkout
       - run:
@@ -49,7 +51,9 @@ jobs:
             trufflehog git file://. --only-verified --fail
 
   code-vulnerability-check:
-    executor: python:3.10.6-alpine3.16
+    working_directory: ~/project
+    docker:
+      - image: python:3.10.6-alpine3.16
     steps:
       - checkout
       - run:
