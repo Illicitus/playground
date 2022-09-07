@@ -14,20 +14,12 @@ jobs:
           name: Setup virtual environment and install dependencies
           command: |
             pip install poetry
-      - run:
-          name: debug
-          command: |
-            poetry --version
       - restore_cache:
           key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run:
           name: Install dependencies
           command: |
             poetry install
-      - run:
-          name: debug
-          command: |
-            echo $(poetry env info --path)
       - save_cache:
           paths:
             - echo $(poetry env info --path)
@@ -38,9 +30,13 @@ jobs:
             poetry run pytest
 
   private-keys-check:
-    executor: docker/docker
-    steps: # pre installed go container and probably git also
+    executor: golang:alpine3.16
+    steps:
       - checkout
+      - run:
+          name: Install git
+          command: |
+            apk add git
       - run:
           name: Download and install trufflehog
           command: |
@@ -53,7 +49,7 @@ jobs:
             trufflehog git file://. --only-verified --fail
 
   code-vulnerability-check:
-    executor: docker/docker
+    executor: python:3.10.6-alpine3.16
     steps:
       - checkout
       - run:
