@@ -19,7 +19,7 @@ jobs:
           command: |
             poetry --version
       - restore_cache:
-          key: deps-{{ .Branch }}-{{ checksum poetry.lock }}
+          key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run:
           name: Install dependencies
           command: |
@@ -31,7 +31,7 @@ jobs:
       - save_cache:
           paths:
             - echo $(poetry env info --path)
-          key: deps-{{ .Branch }}-{{ checksum poetry.lock }}
+          key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run:
           name: Run tests
           command: |
