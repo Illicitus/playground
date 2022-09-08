@@ -36,15 +36,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install git
+          name: Install global dependencies
           command: |
-            apk add git
+            apk add git curl jq
+      - restore_cache:
+          key: deps-{{ .Branch }}-{{ checksum $(curl -sL https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest | jq -r ".tag_name") }}
       - run:
           name: Download and install trufflehog
           command: |
             git clone https://github.com/trufflesecurity/trufflehog.git
             cd trufflehog
             go install
+      - save_cache:
+          paths:
+            - /go/pkg/mod/cache/download
+          key: deps-{{ .Branch }}-{{ checksum $(curl -sL https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest | jq -r ".tag_name") }}
       - run:
           name: Check private keys issues
           command: |
