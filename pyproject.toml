@@ -14,10 +14,23 @@ Pillow = "8.0.0"
 
 [tool.poetry.group.dev.dependencies]
 wapiti3 = "^3.1.3"
-bandit = "^1.7.4"
 pytest = "^7.1.3"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.isort]
+profile = "pycharm"
+sections = ["FUTURE", "FASTAPI", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+known_fastapi = "fastapi"
+known_first_party = []
+known_third_party = []
+forced_separate = []
+group_by_package = true
+line_length = 120
+multi_line_output = 5
+
+[tool.bandit]
+assert_used.skips = ["*/test_*.py", "*/test_*.py"]

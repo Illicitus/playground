@@ -59,11 +59,11 @@ jobs:
       - run:
           name: Install bandit package
           command: |
-            pip install bandit
+            pip install bandit[toml]
       - run:
           name: Run bandit static code analyse
           command: |
-            bandit -c bandit.yml -r .
+            bandit -c pyproject.toml -r .
 
   server-vulnerability-check:
     working_directory: ~/project
