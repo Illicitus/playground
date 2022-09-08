@@ -39,8 +39,12 @@ jobs:
           name: Install global dependencies
           command: |
             apk add git curl jq
+      - run:
+          name: Grab trufflehog current version
+          command: |
+            curl -sL https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest | jq -r ".tag_name" > trufflehog.version
       - restore_cache:
-          key: deps-{{ .Branch }}-{{ checksum $(curl -sL https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest | jq -r ".tag_name") }}
+          key: deps-{{ .Branch }}-{{ checksum "trufflehog.version" }}
       - run:
           name: Download and install trufflehog
           command: |
@@ -50,7 +54,7 @@ jobs:
       - save_cache:
           paths:
             - /go/pkg/mod/cache/download
-          key: deps-{{ .Branch }}-{{ checksum $(curl -sL https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest | jq -r ".tag_name") }}
+          key: deps-{{ .Branch }}-{{ checksum "trufflehog.version" }}
       - run:
           name: Check private keys issues
           command: |
