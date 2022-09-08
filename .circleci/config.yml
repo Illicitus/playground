@@ -82,7 +82,7 @@ jobs:
       - run:
           name: Start server
           command: |
-            docker run ${DOCKER_REGISTRY}:build-${CIRCLE_BRANCH}-${CIRCLE_SHA1} -p 80:80
+            docker run build-${CIRCLE_BRANCH}-${CIRCLE_SHA1} -p 80:80
       - run:
           name: Install wapiti3 package
           command: |
