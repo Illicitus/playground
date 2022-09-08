@@ -1,7 +1,7 @@
 FROM python:3.10.6
 
 # Install package manager
-RUN pip install poetry uvicorn
+RUN pip install poetry unicorn
 
 # Make main directory and copy project
 RUN mkdir -p /project
