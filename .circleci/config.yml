@@ -22,7 +22,7 @@ jobs:
             poetry install
       - save_cache:
           paths:
-            - $(poetry env info --path)
+            - /home/circleci/project/.poetry/virtualenvs
           key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run:
           name: Run tests
